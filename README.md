@@ -58,3 +58,19 @@ Evaluation:
 python eval.py
 ```
 
+## Citing
+
+### BibTeX
+
+```bibtex
+@misc{ConvLSTM_MindSpore,
+    author = {Kim Jisso},
+    title = {ConvLSTM MindSpore},
+    year = {2022},
+    publisher = {GitHub},
+    journal = {GitHub repository},
+    doi = {10.48550/arXiv.1506.04214},
+    howpublished = {\url{https://github.com/KimJisso0610/ConvLSTM_MindSpore}}
+}
+```
+
