@@ -3,38 +3,45 @@ import mindspore.nn as nn
 
 
 class CustomTrainOneStepCell(nn.Cell):
-    """自定义训练网络"""
+    """Customized training network cell"""
 
     def __init__(self, network, forward, optimizer):
-        """入参有两个：训练网络，优化器"""
+        """
+        Args:
+            network: define forward network (includes loss function)
+            forward: define forward network (does not include loss function)
+            optimizer: define optimizer
+        """
         super(CustomTrainOneStepCell, self).__init__(auto_prefix=False)
-        self.network = network  # 定义前向网络
-        self.forward = forward
-        self.network.set_grad()  # 构建反向网络
-        self.optimizer = optimizer  # 定义优化器
-        self.weights = self.optimizer.parameters  # 待更新参数
-        self.grad = ops.GradOperation(get_by_list=True)  # 反向传播获取梯度
+        self.network = network
+        self.forward = forward  # only getting the forecast value of network
+        self.network.set_grad()  # create backward network
+        self.optimizer = optimizer
+        self.weights = self.optimizer.parameters  # parameters to be updated
+        self.grad = ops.GradOperation(get_by_list=True)  # backward for getting grad
 
     def construct(self, *inputs):
-        # print(type(inputs))
-        # print(*inputs)
-        output = self.forward(inputs[0])
-        loss = self.network(*inputs)  # 计算当前输入的损失函数值
-        grads = self.grad(self.network, self.weights)(*inputs)  # 进行反向传播，计算梯度
-        self.optimizer(grads)  # 使用优化器更新权重参数
+        output = self.forward(inputs[0])  # get forecast value
+        loss = self.network(*inputs)  # get value of loss function
+        grads = self.grad(self.network, self.weights)(*inputs)  # get grad
+        self.optimizer(grads)  # update parameters using optimizer
         return output, loss
 
 
 class CustomEvalOneStepCell(nn.Cell):
-    """自定义训练网络"""
+    """Customized evaluation network cell"""
 
     def __init__(self, network, forward):
-        """入参有两个：训练网络，优化器"""
+        """
+        Args:
+            network: define forward network (includes loss function)
+            forward: define forward network (does not include loss function)
+        """
         super(CustomEvalOneStepCell, self).__init__(auto_prefix=False)
-        self.network = network  # 定义前向网络
+        self.network = network
         self.forward = forward
 
     def construct(self, *inputs):
-        output = self.forward(inputs[0])
-        loss = self.network(*inputs)  # 计算当前输入的损失函数值
+        output = self.forward(inputs[0])  # only getting the forecast value of network
+        loss = self.network(*inputs)  # get value of loss function
         return output, loss
