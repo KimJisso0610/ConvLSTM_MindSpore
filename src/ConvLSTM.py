@@ -29,15 +29,13 @@ class ConvLSTMBlock(nn.Cell):
                                      kernel_size, padding, stride)
 
     def _make_layer(self, in_channels, out_channels, kernel_size, padding, stride):
-        seq = nn.SequentialCell()
-        return seq(
+        return nn.SequentialCell(
             nn.Conv2d(in_channels, out_channels,
                       kernel_size=kernel_size, pad_mode='same', padding=0, stride=stride),
             nn.BatchNorm2d(out_channels))
 
     def construct(self, inputs):
         '''
-
         :param inputs: (B, S, C, H, W)
         :param hidden_state: (hx: (B, S, C, H, W), cx: (B, S, C, H, W))
         :return:
@@ -88,17 +86,13 @@ class Encoder(nn.Cell):
                                     pad_mode='same', padding=0, stride=stride))
             layers.append(nn.BatchNorm2d(out_ch))
             if activation == 'leaky':
-                leaky_relu = nn.LeakyReLU()
-                layers.append(leaky_relu())
+                layers.append(nn.LeakyReLU())
             elif activation == 'relu':
-                relu = nn.ReLU()
-                layers.append(relu())
+                layers.append(nn.ReLU())
         elif type == 'convlstm':
             layers.append(ConvLSTMBlock(in_ch, out_ch, kernel_size=kernel_size,
                                         padding=0, stride=stride))
-
-        seq = nn.SequentialCell()
-        return seq(layers)
+        return nn.SequentialCell(layers)
 
     def construct(self, x):
         '''
@@ -131,14 +125,11 @@ class Decoder(nn.Cell):
                                     pad_mode='same', padding=0, stride=stride))
             layers.append(nn.BatchNorm2d(out_ch))
             if activation == 'leaky':
-                leaky_relu = nn.LeakyReLU()
-                layers.append(leaky_relu())
+                layers.append(nn.LeakyReLU())
             elif activation == 'relu':
-                relu = nn.ReLU()
-                layers.append(relu())
+                layers.append(nn.ReLU())
             elif activation == 'sigmoid':
-                sigmoid = nn.Sigmoid()
-                layers.append(sigmoid())
+                layers.append(nn.Sigmoid())
         elif type == 'convlstm':
             layers.append(ConvLSTMBlock(in_ch, out_ch, kernel_size=kernel_size,
                                         padding=1, stride=stride))
@@ -151,8 +142,7 @@ class Decoder(nn.Cell):
                 layers.append(nn.LeakyReLU())
             elif activation == 'relu':
                 layers.append(nn.ReLU())
-        seq = nn.SequentialCell()
-        return seq(layers)
+        return nn.SequentialCell(layers)
 
     def construct(self, encoder_outputs):
         '''
